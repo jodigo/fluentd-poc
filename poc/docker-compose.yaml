@@ -1,0 +1,27 @@
+version: "3"
+services:
+  fluentd:
+    container_name: fluentd
+    user: root
+    build:
+      context: .
+    image: fluentd
+    volumes:
+    - /var/lib/docker/containers:/fluentd/log/containers # Reading docker logs
+    - ./file:/fluentd/log/files/ # Reading logs from a file
+    - ./configurations:/fluentd/etc/
+    - ./logs:/output/ # Collect and store logs here
+    logging:
+      driver: "local"
+  http-app:
+    container_name: http-app
+    image: alpine
+    volumes:
+    - ./http:/app
+    command: [ /bin/sh , -c , "apk add --no-cache curl && chmod +x /app/app.sh && ./app/app.sh"]
+  file-app:
+    container_name: file-app
+    image: alpine
+    volumes:
+    - ./file:/app
+    command: [ /bin/sh , -c , "chmod +x /app/app.sh && ./app/app.sh"]
